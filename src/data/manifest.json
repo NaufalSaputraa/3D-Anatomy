@@ -4,111 +4,127 @@
     "nama_id": "Tengkorak",
     "nama_en": "Skull",
     "sistem": "Skeletal",
-    "deskripsi_id": "Rangka kepala yang melindungi otak."
+    "deskripsi_id": "Rangka kepala yang melindungi otak.",
+    "deskripsi_en": "The skull protecting the brain."
   },
   {
     "id": "tulang_rusuk",
     "nama_id": "Tulang Rusuk",
     "nama_en": "Rib Cage",
     "sistem": "Skeletal",
-    "deskripsi_id": "Tulang yang melindungi organ dada."
+    "deskripsi_id": "Tulang yang melindungi organ dada.",
+    "deskripsi_en": "Bones protecting the chest organs."
   },
   {
     "id": "tulang_belakang",
     "nama_id": "Tulang Belakang",
     "nama_en": "Spine",
     "sistem": "Skeletal",
-    "deskripsi_id": "Penopang tubuh dan pelindung sumsum tulang belakang."
+    "deskripsi_id": "Penopang tubuh dan pelindung sumsum tulang belakang.",
+    "deskripsi_en": "Supports the body and protects the spinal cord."
   },
   {
     "id": "jantung",
     "nama_id": "Jantung",
     "nama_en": "Heart",
     "sistem": "Sirkulasi",
-    "deskripsi_id": "Pompa yang mengalirkan darah ke seluruh tubuh."
+    "deskripsi_id": "Pompa yang mengalirkan darah ke seluruh tubuh.",
+    "deskripsi_en": "The pump circulating blood through the whole body."
   },
   {
     "id": "paru_kanan",
     "nama_id": "Paru Kanan",
     "nama_en": "Right Lung",
     "sistem": "Pernapasan",
-    "deskripsi_id": "Paru bagian kanan untuk pertukaran oksigen."
+    "deskripsi_id": "Paru bagian kanan untuk pertukaran oksigen.",
+    "deskripsi_en": "The right lung for oxygen exchange."
   },
   {
     "id": "paru_kiri",
     "nama_id": "Paru Kiri",
     "nama_en": "Left Lung",
     "sistem": "Pernapasan",
-    "deskripsi_id": "Paru bagian kiri untuk pertukaran oksigen."
+    "deskripsi_id": "Paru bagian kiri untuk pertukaran oksigen.",
+    "deskripsi_en": "The left lung for oxygen exchange."
   },
   {
     "id": "hati",
     "nama_id": "Hati",
     "nama_en": "Liver",
     "sistem": "Pencernaan",
-    "deskripsi_id": "Organ terbesar yang membersihkan darah dan memproduksi empedu."
+    "deskripsi_id": "Organ terbesar yang membersihkan darah dan memproduksi empedu.",
+    "deskripsi_en": "The largest organ; cleans blood and produces bile."
   },
   {
     "id": "lambung",
     "nama_id": "Lambung",
     "nama_en": "Stomach",
     "sistem": "Pencernaan",
-    "deskripsi_id": "Organ pencernaan awal yang mengurai makanan."
+    "deskripsi_id": "Organ pencernaan awal yang mengurai makanan.",
+    "deskripsi_en": "The first digestive organ breaking down food."
   },
   {
     "id": "usus_halus",
     "nama_id": "Usus Halus",
     "nama_en": "Small Intestine",
     "sistem": "Pencernaan",
-    "deskripsi_id": "Tempat utama penyerapan nutrisi makanan."
+    "deskripsi_id": "Tempat utama penyerapan nutrisi makanan.",
+    "deskripsi_en": "The main site of nutrient absorption."
   },
   {
     "id": "ginjal",
     "nama_id": "Ginjal",
     "nama_en": "Kidney",
     "sistem": "Ekskresi",
-    "deskripsi_id": "Menyaring darah dan menghasilkan urine."
+    "deskripsi_id": "Menyaring darah dan menghasilkan urine.",
+    "deskripsi_en": "Filters blood and produces urine."
   },
   {
     "id": "otot_bisep",
     "nama_id": "Otot Bisep",
     "nama_en": "Biceps",
     "sistem": "Muskuloskeletal",
-    "deskripsi_id": "Otot lengan atas untuk menekuk siku."
+    "deskripsi_id": "Otot lengan atas untuk menekuk siku.",
+    "deskripsi_en": "The upper-arm muscle for bending the elbow."
   },
   {
     "id": "otak",
     "nama_id": "Otak",
     "nama_en": "Brain",
     "sistem": "Saraf",
-    "deskripsi_id": "Pusat kontrol seluruh fungsi tubuh."
+    "deskripsi_id": "Pusat kontrol seluruh fungsi tubuh.",
+    "deskripsi_en": "The control center of all body functions."
   },
   {
     "id": "mata",
     "nama_id": "Mata",
     "nama_en": "Eye",
     "sistem": "Saraf",
-    "deskripsi_id": "Organ penglihatan yang mendeteksi cahaya."
+    "deskripsi_id": "Organ penglihatan yang mendeteksi cahaya.",
+    "deskripsi_en": "The visual organ detecting light."
   },
   {
     "id": "kulit",
     "nama_id": "Kulit",
     "nama_en": "Skin",
     "sistem": "Integumen",
-    "deskripsi_id": "Lapisan luar pelindung tubuh."
+    "deskripsi_id": "Lapisan luar pelindung tubuh.",
+    "deskripsi_en": "The outer protective layer of the body."
   },
   {
     "id": "pembuluh_darah",
     "nama_id": "Pembuluh Darah",
     "nama_en": "Blood Vessel",
     "sistem": "Sirkulasi",
-    "deskripsi_id": "Saluran yang mengalirkan darah ke seluruh tubuh."
+    "deskripsi_id": "Saluran yang mengalirkan darah ke seluruh tubuh.",
+    "deskripsi_en": "Vessels carrying blood through the whole body."
   },
   {
     "id": "tulang",
     "nama_id": "Tulang Rangka",
     "nama_en": "Skeletal Bone",
     "sistem": "Skeletal",
-    "deskripsi_id": "Tulang individual penyusun rangka tubuh manusia. Klik tulang lain untuk identifikasi."
+    "deskripsi_id": "Tulang individual penyusun rangka tubuh manusia. Klik tulang lain untuk identifikasi.",
+    "deskripsi_en": "An individual bone of the human skeleton. Click other bones to identify them."
   }
 ]

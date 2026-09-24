@@ -1,6 +1,19 @@
 import { useMemo } from 'react'
 import type { Manifest } from '../../data/schema'
+import type { OrganMatch } from '../hooks/useSearch'
 import type { VisibilityMap } from '../../viewer/state/sceneStore'
+import { useLang, t } from '../i18n/strings'
+
+const SYSTEM_EN: Record<string, string> = {
+  Skeletal: 'Skeletal',
+  Sirkulasi: 'Circulatory',
+  Pernapasan: 'Respiratory',
+  Pencernaan: 'Digestive',
+  Ekskresi: 'Excretory',
+  Saraf: 'Nervous',
+  Integumen: 'Integumentary',
+  Muskuloskeletal: 'Musculoskeletal',
+}
 
 interface Props {
   parts: Manifest
@@ -10,9 +23,12 @@ interface Props {
   onSelect: (id: string | null) => void
   onHover: (id: string | null) => void
   onToggleSystem: (system: string) => void
+  organs?: OrganMatch[]
+  onPickOrgan?: (organ: OrganMatch) => void
 }
 
-export function Sidebar({ parts, selectedId, hoverId, visibilityMap, onSelect, onHover, onToggleSystem }: Props) {
+export function Sidebar({ parts, selectedId, hoverId, visibilityMap, onSelect, onHover, onToggleSystem, organs, onPickOrgan }: Props) {
+  const lang = useLang()
   const groups = useMemo(() => {
     const map = new Map<string, Manifest>()
     for (const p of parts) {
@@ -25,18 +41,43 @@ export function Sidebar({ parts, selectedId, hoverId, visibilityMap, onSelect, o
 
   return (
     <aside className="flex-1 min-h-0 w-full overflow-y-auto p-3">
-      <h2 className="text-sm font-semibold mb-2">Struktur ({parts.length})</h2>
+      <h2 className="text-sm font-semibold mb-2">
+        {t(lang, 'sidebar.title')} ({parts.length})
+      </h2>
+      {organs && organs.length > 0 && onPickOrgan && (
+        <div className="mb-3">
+          <div className="px-1 mb-1">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+              {t(lang, 'sidebar.organs')} • {organs.length}
+            </span>
+          </div>
+          <div className="flex flex-col gap-1">
+            {organs.map((o) => (
+              <button
+                key={o.id}
+                type="button"
+                onClick={() => onPickOrgan(o)}
+                className="text-left text-sm px-2.5 py-2 rounded-lg border border-gray-200 hover:border-gray-900 hover:bg-gray-50 transition-colors"
+              >
+                <div className="font-medium leading-tight">{o.name}</div>
+                <div className="text-[11px] text-gray-500 leading-tight">{o.system}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {groups.map(([system, list]) => {
         const hidden = visibilityMap[system] === false
+        const systemLabel = lang === 'en' ? (SYSTEM_EN[system] ?? system) : system
         return (
           <div key={system} className="mb-3">
             <div className="flex items-center justify-between mb-1 px-1">
               <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                {system} <span className="font-normal">• {list.length}</span>
+                {systemLabel} <span className="font-normal">• {list.length}</span>
               </span>
               <button
                 type="button"
-                title={hidden ? 'Tampilkan sistem' : 'Sembunyikan sistem'}
+                title={hidden ? `${t(lang, 'organs.show')} ${systemLabel}` : `${t(lang, 'organs.hide')} ${systemLabel}`}
                 onClick={() => onToggleSystem(system)}
                 className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${
                   hidden ? 'border-amber-300 bg-amber-50' : 'border-gray-300 hover:bg-gray-100'
@@ -49,6 +90,8 @@ export function Sidebar({ parts, selectedId, hoverId, visibilityMap, onSelect, o
               {list.map((p) => {
                 const isSel = p.id === selectedId
                 const isHover = p.id === hoverId
+                const primary = lang === 'en' ? p.nama_en : p.nama_id
+                const secondary = lang === 'en' ? p.nama_id : p.nama_en
                 return (
                   <button
                     key={p.id}
@@ -64,8 +107,8 @@ export function Sidebar({ parts, selectedId, hoverId, visibilityMap, onSelect, o
                           : 'border-transparent hover:bg-gray-100'
                     } ${hidden ? 'opacity-40' : ''}`}
                   >
-                    <div className="font-medium">{p.nama_id}</div>
-                    <div className="text-xs opacity-70">{p.nama_en}</div>
+                    <div className="font-medium">{primary}</div>
+                    <div className="text-xs opacity-70">{secondary}</div>
                   </button>
                 )
               })}

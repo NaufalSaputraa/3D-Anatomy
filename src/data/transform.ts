@@ -128,6 +128,44 @@ const REGION_RULES: Array<[RegExp, string]> = [
   [/\bhip\b|pelvis|ilium|ischium|pubis/i, 'Panggul'],
 ]
 
+const REGION_EN: Record<string, string> = {
+  Tangan: 'Hand',
+  Kaki: 'Foot',
+  Lengan: 'Arm',
+  Tungkai: 'Leg',
+  Kepala: 'Head',
+  Dada: 'Chest',
+  'Tulang Belakang': 'Spine',
+  Panggul: 'Pelvis',
+  Rangka: 'Skeleton',
+}
+
+const BONE_ROLE_EN: Record<string, string> = {
+  femur: 'the longest and strongest bone in the body, supporting body weight when standing and walking',
+  tibia: 'supports body weight and forms the knee and ankle joints',
+  fibula: 'stabilizes the ankle and anchors the calf muscles',
+  patella: 'protects the knee joint and strengthens thigh muscle action',
+  humerus: 'connects the shoulder to the elbow and anchors upper-arm muscles',
+  radius: 'the thumb-side bone enabling wrist rotation',
+  ulna: 'forms the elbow joint together with the humerus',
+  clavicle: 'connects the arm to the chest and stabilizes the shoulder',
+  scapula: 'a flat bone anchoring shoulder and arm muscles',
+  sternum: 'protects the heart and lungs and anchors the ribs',
+  rib: 'protects the heart and lungs',
+  vertebra: 'protects the spinal cord and supports posture',
+  sacrum: 'connects the spine to the pelvis, transferring upper-body weight',
+  coccyx: 'supports sitting and anchors pelvic floor muscles',
+  pelvis: 'protects pelvic organs and supports the body when sitting and walking',
+  mandible: 'the only movable skull bone, used for chewing and speaking',
+  maxilla: 'forms the upper jaw and the floor of the nasal and eye cavities',
+  skull: 'protects the brain',
+  cranium: 'protects the brain',
+  carpal: 'gives flexibility to the wrist',
+  tarsal: 'absorbs impact when walking and supports the foot arch',
+  metacarpal: 'forms the palm and the base of the fingers',
+  metatarsal: 'forms the sole and supports weight when stepping',
+}
+
 function titleCase(s: string): string {
   return s.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
 }
@@ -145,8 +183,8 @@ function findKey(norm: string, dict: Record<string, string>): string | null {
 }
 
 // Mengurai nama mesh Inggris (mis. "proximal_phalanx_of_left_little_finger")
-// menjadi judul + deskripsi Indonesia yang spesifik per tulang.
-export function describeBone(meshName: string): BoneDetail {
+// menjadi judul + deskripsi spesifik per tulang (ID/EN via lang).
+export function describeBone(meshName: string, lang: 'id' | 'en' = 'id'): BoneDetail {
   const latin = prettyMeshName(meshName)
   const norm = meshName.toLowerCase().replace(/[_-]+/g, ' ')
   const tokens = new Set(norm.split(/\s+/))
@@ -160,6 +198,14 @@ export function describeBone(meshName: string): BoneDetail {
   const region = regionEntry ? regionEntry[1] : 'Rangka'
 
   if (!boneKey) {
+    if (lang === 'en') {
+      return {
+        title: latin,
+        latin,
+        region: REGION_EN[region] ?? 'Skeleton',
+        detail: `${latin}${sideKey ? ` on the ${sideKey} side` : ''} is one of the 201 bones in this skeletal model.`,
+      }
+    }
     return {
       title: latin,
       latin,
@@ -173,6 +219,19 @@ export function describeBone(meshName: string): BoneDetail {
 
   if (boneKey === 'phalanx') {
     const digitKey = findKey(norm, DIGIT_ID)
+    if (lang === 'en') {
+      const dEn = digitKey ?? (isToe ? 'toe' : 'finger')
+      const segEn = segmentKey ? `${titleCase(segmentKey)} ` : ''
+      const sideEn = sideKey ? ` ${titleCase(sideKey)}` : ''
+      const limbEn = isToe ? 'Toe' : 'Finger'
+      const moveEn = isToe ? 'stepping and balance' : 'fine movement and grip'
+      return {
+        title: `${segEn}Phalanx of the${sideEn} ${titleCase(dEn)} ${limbEn}`,
+        latin,
+        region: REGION_EN[region] ?? 'Skeleton',
+        detail: `The ${segmentKey ? `${segmentKey} ` : ''}phalanx of the${sideKey ? ` ${sideKey}` : ''} ${dEn} ${limbEn.toLowerCase()}. Together with the other phalanges it forms the framework of the ${limbEn.toLowerCase()} for ${moveEn}.`,
+      }
+    }
     const digit = digitKey ? DIGIT_ID[digitKey] : 'jari'
     const jari = isToe ? 'Jari Kaki' : 'Jari Tangan'
     const seg = segmentKey ? ` ${titleCase(SEGMENT_ID[segmentKey])}` : ''
@@ -186,6 +245,19 @@ export function describeBone(meshName: string): BoneDetail {
         `${title} adalah tulang ruas ${digit.toLowerCase()}${side ? ` ${side.toLowerCase()}` : ''}` +
         `${segmentKey ? ` bagian ${SEGMENT_ID[segmentKey]}` : ''}. ` +
         `Bersama ruas lainnya, tulang ini membentuk kerangka ${jari.toLowerCase()} untuk ${gerak}.`,
+    }
+  }
+
+  if (lang === 'en') {
+    const roleEn = BONE_ROLE_EN[boneKey]
+    const titleEn = `${titleCase(boneKey)}${sideKey ? ` (${titleCase(sideKey)})` : ''}`
+    return {
+      title: titleEn,
+      latin,
+      region: REGION_EN[region] ?? 'Skeleton',
+      detail: roleEn
+        ? `${titleEn} is ${roleEn}.`
+        : `${titleEn} is part of the ${(REGION_EN[region] ?? 'skeleton').toLowerCase()} skeleton.`,
     }
   }
 

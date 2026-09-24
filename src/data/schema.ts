@@ -7,6 +7,7 @@ export const BodyPartSchema = z.object({
   nama_en: z.string(),
   sistem: z.string(),
   deskripsi_id: z.string(),
+  deskripsi_en: z.string(),
 })
 
 export type BodyPart = z.infer<typeof BodyPartSchema>

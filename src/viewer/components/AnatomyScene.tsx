@@ -1,10 +1,51 @@
-import { Component, Suspense, type ReactNode } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { Component, Suspense, useEffect, type ReactNode } from 'react'
+import { Canvas, useThree } from '@react-three/fiber'
 import { Html, OrbitControls } from '@react-three/drei'
+import * as THREE from 'three'
 import { ModelGroup } from './ModelGroup'
 import { OrganSystem } from './OrganSystem'
-import { ORGAN_SYSTEMS } from '../atlas/atlas'
+import { ORGAN_SYSTEMS, computeAtlasFrame, fetchAtlas } from '../atlas/atlas'
 import { useStore } from '../state/sceneStore'
+
+interface ControlsLike {
+  target: THREE.Vector3
+  update: () => void
+}
+
+// Menerapkan permintaan fokus (dari hasil pencarian organ): gerakkan target
+// OrbitControls + kamera ke titik part dalam koordinat ternormalisasi.
+function FocusController() {
+  const controls = useThree((s) => s.controls) as unknown as ControlsLike | null
+  const camera = useThree((s) => s.camera)
+  const focusRequest = useStore((s) => s.focusRequest)
+  const setFocusRequest = useStore((s) => s.setFocusRequest)
+
+  useEffect(() => {
+    if (!focusRequest || !controls) return
+    let cancelled = false
+    ;(async () => {
+      try {
+        const atlas = await fetchAtlas()
+        if (cancelled) return
+        const frame = computeAtlasFrame(atlas.parts)
+        const p = new THREE.Vector3(...focusRequest.point)
+          .multiplyScalar(frame.scale)
+          .add(new THREE.Vector3(...frame.offset))
+        const dist = THREE.MathUtils.clamp(focusRequest.size * frame.scale * 6, 0.4, 6)
+        const dir = camera.position.clone().sub(controls.target).normalize()
+        controls.target.copy(p)
+        camera.position.copy(p).addScaledVector(dir, dist)
+        controls.update()
+      } finally {
+        if (!cancelled) setFocusRequest(null)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [focusRequest, controls, camera, setFocusRequest])
+  return null
+}
 
 class ModelErrorBoundary extends Component<{ children: ReactNode }, { error: string | null }> {
   state = { error: null as string | null }
@@ -57,6 +98,7 @@ export const AnatomyScene = () => {
     >
       <ambientLight intensity={0.6} />
       <directionalLight position={[5, 8, 5]} intensity={1.2} />
+      <FocusController />
       <OrbitControls
         key={viewKey}
         enableDamping

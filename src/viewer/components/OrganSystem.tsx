@@ -28,6 +28,9 @@ export function OrganSystem({ system }: { system: OrganSystemId }) {
   const setOrganStatus = useStore((s) => s.setOrganStatus)
   const selectedOrgan = useStore((s) => s.selectedOrgan)
   const isolatedSystem = useStore((s) => s.isolatedSystem)
+  const pendingOrganPick = useStore((s) => s.pendingOrganPick)
+  const setPendingOrganPick = useStore((s) => s.setPendingOrganPick)
+  const setFocusRequest = useStore((s) => s.setFocusRequest)
   const setSelectedOrgan = useStore((s) => s.setSelectedOrgan)
   const setSelected = useStore((s) => s.setSelected)
   const setSelectedMesh = useStore((s) => s.setSelectedMesh)
@@ -100,6 +103,29 @@ export function OrganSystem({ system }: { system: OrganSystemId }) {
   useEffect(() => () => material.dispose(), [material])
 
   const selectedId = selectedOrgan?.id ?? null
+
+  // Konsumsi antrian pick dari hasil pencarian: pilih part + minta fokus kamera.
+  useEffect(() => {
+    if (!pendingOrganPick || pendingOrganPick.system !== system || !merged) return
+    const part = merged.parts.find((p) => p.id === pendingOrganPick.partId)
+    if (!part) {
+      setPendingOrganPick(null)
+      return
+    }
+    setSelectedOrgan({ id: part.id, name: part.name, system: part.system })
+    setSelected(null)
+    setSelectedMesh(null)
+    const cx = (part.bounds[0][0] + part.bounds[1][0]) / 2
+    const cy = (part.bounds[0][1] + part.bounds[1][1]) / 2
+    const cz = (part.bounds[0][2] + part.bounds[1][2]) / 2
+    const size = Math.max(
+      part.bounds[1][0] - part.bounds[0][0],
+      part.bounds[1][1] - part.bounds[0][1],
+      part.bounds[1][2] - part.bounds[0][2],
+    )
+    setFocusRequest({ point: [cx, cy, cz], size, token: Date.now() })
+    setPendingOrganPick(null)
+  }, [pendingOrganPick, merged, system, setSelectedOrgan, setSelected, setSelectedMesh, setFocusRequest, setPendingOrganPick])
 
   const overlay = useMemo(() => {
     if (!selectedId || !merged) return null

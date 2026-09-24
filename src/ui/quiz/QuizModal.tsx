@@ -1,19 +1,24 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { Manifest } from '../../data/schema'
+import type { OrganSystemId } from '../../viewer/atlas/atlas'
+import { useLang, t } from '../i18n/strings'
 import { generateQuestions } from './questions'
-import { buildOrganQuestions } from './organQuestions'
+import { buildChapterQuestions, buildOrganQuestions } from './organQuestions'
 import { saveResult } from './storage'
 import type { QuizQuestion } from './types'
 
 interface Props {
   manifest: Manifest
   onClose: () => void
+  chapterSystem?: OrganSystemId | null
+  chapterTitle?: string | null
 }
 
-export function QuizModal({ manifest, onClose }: Props) {
+export function QuizModal({ manifest, onClose, chapterSystem, chapterTitle }: Props) {
+  const lang = useLang()
   const [round, setRound] = useState(0)
   const [pool, setPool] = useState<QuizQuestion[] | null>(null)
-  const [source, setSource] = useState<'organ' | 'dasar'>('dasar')
+  const [source, setSource] = useState<'bab' | 'organ' | 'dasar'>('dasar')
   const [index, setIndex] = useState(0)
   const [picked, setPicked] = useState<string | null>(null)
   const [score, setScore] = useState(0)
@@ -23,19 +28,29 @@ export function QuizModal({ manifest, onClose }: Props) {
     let cancelled = false
     setPool(null)
     setPhase('loading')
-    buildOrganQuestions(5).then((organ) => {
+    ;(async () => {
+      if (chapterSystem) {
+        const chapter = await buildChapterQuestions(chapterSystem, 5, lang)
+        if (!cancelled && chapter && chapter.length >= 2) {
+          setPool(chapter)
+          setSource('bab')
+          setPhase('quiz')
+          return
+        }
+      }
+      const organ = !chapterSystem ? await buildOrganQuestions(5, lang) : null
       if (cancelled) return
       if (organ && organ.length >= 4) {
         setPool(organ)
         setSource('organ')
       } else {
-        setPool(generateQuestions(manifest, 5))
+        setPool(generateQuestions(manifest, 5, lang))
         setSource('dasar')
       }
       setPhase('quiz')
-    })
+    })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [manifest, round])
+  }, [manifest, round, chapterSystem, lang])
 
   const questions: QuizQuestion[] = useMemo(() => pool ?? [], [pool])
   const current = questions[index]
@@ -50,7 +65,10 @@ export function QuizModal({ manifest, onClose }: Props) {
   const next = () => {
     if (!current) return
     if (index + 1 >= questions.length) {
-      saveResult({ score, total: questions.length, date: new Date().toISOString() })
+      saveResult(
+        { score, total: questions.length, date: new Date().toISOString() },
+        chapterSystem ?? undefined,
+      )
       setPhase('done')
     } else {
       setIndex((i) => i + 1)
@@ -66,21 +84,35 @@ export function QuizModal({ manifest, onClose }: Props) {
     setRound((r) => r + 1)
   }
 
+  const badge =
+    source === 'bab'
+      ? `${t(lang, 'study.chapter')} ${chapterTitle ?? ''}`
+      : source === 'organ'
+        ? t(lang, 'quiz.badgeOrgan')
+        : t(lang, 'quiz.badgeBasic')
+
+  const verdict =
+    score === questions.length
+      ? t(lang, 'quiz.perfect')
+      : score >= 3
+        ? t(lang, 'quiz.good')
+        : t(lang, 'quiz.retry')
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl">
         {phase === 'loading' || !current ? (
           !finished ? (
             <>
-              <h2 className="text-base font-semibold">Menyiapkan soal…</h2>
-              <p className="mt-1 text-sm text-gray-500">Mengambil bank soal anatomi.</p>
+              <h2 className="text-base font-semibold">{t(lang, 'quiz.loadingTitle')}</h2>
+              <p className="mt-1 text-sm text-gray-500">{t(lang, 'quiz.loadingDesc')}</p>
               <div className="mt-4 flex justify-end">
                 <button
                   type="button"
                   onClick={onClose}
                   className="rounded-lg border px-3 py-1.5 text-sm hover:bg-gray-100"
                 >
-                  Tutup
+                  {t(lang, 'quiz.close')}
                 </button>
               </div>
             </>
@@ -90,16 +122,20 @@ export function QuizModal({ manifest, onClose }: Props) {
           <>
             <div className="flex items-center justify-between text-xs font-medium text-gray-500">
               <span>
-                Soal {index + 1}/{questions.length}
+                {t(lang, 'quiz.question')} {index + 1}/{questions.length}
               </span>
               <span
                 className={`rounded-full px-2 py-0.5 ${
-                  source === 'organ' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-500'
+                  source === 'dasar'
+                    ? 'bg-gray-100 text-gray-500'
+                    : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                 }`}
               >
-                {source === 'organ' ? 'Soal organ asli' : 'Soal dasar'}
+                {badge}
               </span>
-              <span>Skor: {score}</span>
+              <span>
+                {t(lang, 'quiz.score')}: {score}
+              </span>
             </div>
             <div
               className="mt-2 h-1.5 rounded-full bg-gray-100"
@@ -145,7 +181,7 @@ export function QuizModal({ manifest, onClose }: Props) {
                 onClick={onClose}
                 className="rounded-lg border px-3 py-1.5 text-sm hover:bg-gray-100"
               >
-                Tutup
+                {t(lang, 'quiz.close')}
               </button>
               <button
                 type="button"
@@ -153,38 +189,32 @@ export function QuizModal({ manifest, onClose }: Props) {
                 onClick={next}
                 className="rounded-lg bg-black px-3 py-1.5 text-sm text-white disabled:opacity-40"
               >
-                {index + 1 >= questions.length ? 'Lihat hasil' : 'Lanjut'}
+                {index + 1 >= questions.length ? t(lang, 'quiz.results') : t(lang, 'quiz.next')}
               </button>
             </div>
           </>
         )}
         {finished && (
           <>
-            <h2 className="text-lg font-semibold">Hasil Kuis</h2>
+            <h2 className="text-lg font-semibold">{t(lang, 'quiz.resultTitle')}</h2>
             <p className="mt-2 text-3xl font-bold">
               {score}/{questions.length}
             </p>
-            <p className="mt-1 text-sm text-gray-500">
-              {score === questions.length
-                ? 'Sempurna! Pertahankan.'
-                : score >= 3
-                  ? 'Bagus! Coba lagi untuk nilai sempurna.'
-                  : 'Pelajari lagi strukturnya, lalu coba lagi.'}
-            </p>
+            <p className="mt-1 text-sm text-gray-500">{verdict}</p>
             <div className="mt-4 flex justify-end gap-2">
               <button
                 type="button"
                 onClick={onClose}
                 className="rounded-lg border px-3 py-1.5 text-sm hover:bg-gray-100"
               >
-                Tutup
+                {t(lang, 'quiz.close')}
               </button>
               <button
                 type="button"
                 onClick={replay}
                 className="rounded-lg bg-black px-3 py-1.5 text-sm text-white"
               >
-                Main lagi
+                {t(lang, 'quiz.replay')}
               </button>
             </div>
           </>

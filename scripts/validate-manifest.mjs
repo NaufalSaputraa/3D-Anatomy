@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises'
 
-const REQUIRED_FIELDS = ['id', 'nama_id', 'nama_en', 'sistem', 'deskripsi_id']
+const REQUIRED_FIELDS = ['id', 'nama_id', 'nama_en', 'sistem', 'deskripsi_id', 'deskripsi_en']
 
 async function validate() {
   try {

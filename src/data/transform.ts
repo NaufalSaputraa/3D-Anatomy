@@ -1,0 +1,199 @@
+import type { Manifest, BodyPart } from './schema'
+
+export function buildSearchIndex(manifest: Manifest): Record<string, BodyPart> {
+  const index: Record<string, BodyPart> = {}
+  for (const part of manifest) {
+    index[part.id] = part
+    // Also index by nama_en lowercase for fuzzy search
+    if (part.nama_en) {
+      index[part.nama_en.toLowerCase()] = part
+    }
+    // Index by nama_id lowercase
+    if (part.nama_id) {
+      index[part.nama_id.toLowerCase()] = part
+    }
+  }
+  return index
+}
+
+export function filterBySystem(system: string, manifest: Manifest): BodyPart[] {
+  return manifest.filter((part) => part.sistem === system)
+}
+
+export function searchParts(query: string, manifest: Manifest): BodyPart[] {
+  const lowerQuery = query.toLowerCase()
+  return manifest.filter(
+    (part) =>
+      part.nama_id.toLowerCase().includes(lowerQuery) ||
+      part.nama_en.toLowerCase().includes(lowerQuery) ||
+      part.sistem.toLowerCase().includes(lowerQuery) ||
+      part.deskripsi_id.toLowerCase().includes(lowerQuery)
+  )
+}
+
+// Memetakan nama mesh 3D (mis. "body of sternum", "left_hip_bone") ke id
+// entri manifest. Aturan keyword dari kaidah anatomi umum; fallback "tulang".
+const MESH_RULES: Array<[RegExp, string]> = [
+  [/skull|cranium|mandible|maxilla|zygomatic|nasal|occipital|parietal|frontal|temporal|sphenoid|ethmoid|vomer|palatine|lacrimal|hyoid|orbit|atlas|axis|odontoid/i, 'tengkorak'],
+  [/rib|costa|sternum|xiphoid/i, 'tulang_rusuk'],
+  [/vertebra|cervical|thoracic|lumbar|sacrum|coccyx|spine|pelvis|sacroiliac/i, 'tulang_belakang'],
+]
+
+export function meshNameToPartId(meshName: string): string {
+  for (const [re, id] of MESH_RULES) {
+    if (re.test(meshName)) return id
+  }
+  return 'tulang'
+}
+
+export interface BoneDetail {
+  title: string
+  latin: string
+  region: string
+  detail: string
+}
+
+const SIDE_ID: Record<string, string> = { left: 'Kiri', right: 'Kanan' }
+const SEGMENT_ID: Record<string, string> = { proximal: 'proksimal', distal: 'distal', middle: 'tengah' }
+
+const BONE_ID: Record<string, string> = {
+  metacarpal: 'tulang telapak tangan',
+  metatarsal: 'tulang telapak kaki',
+  phalanx: 'ruas jari',
+  carpal: 'tulang pergelangan tangan',
+  tarsal: 'tulang pergelangan kaki',
+  femur: 'tulang paha',
+  tibia: 'tulang kering',
+  fibula: 'tulang betis',
+  patella: 'tempurung lutut',
+  humerus: 'tulang lengan atas',
+  radius: 'tulang pengumpil',
+  ulna: 'tulang hasta',
+  clavicle: 'tulang selangka',
+  scapula: 'tulang belikat',
+  sternum: 'tulang dada',
+  sacrum: 'tulang kelangkang',
+  coccyx: 'tulang ekor',
+  mandible: 'tulang rahang bawah',
+  maxilla: 'tulang rahang atas',
+  cranium: 'tulang tengkorak',
+  skull: 'tulang tengkorak',
+  vertebra: 'tulang belakang',
+  rib: 'tulang rusuk',
+  pelvis: 'tulang panggul',
+}
+
+const DIGIT_ID: Record<string, string> = {
+  thumb: 'ibu jari',
+  index: 'telunjuk',
+  middle: 'tengah',
+  ring: 'manis',
+  little: 'kelingking',
+}
+
+const BONE_ROLE: Record<string, string> = {
+  femur: 'tulang terpanjang dan terkuat di tubuh; menopang berat badan saat berdiri dan berjalan',
+  tibia: 'menopang berat badan dan membentuk sendi lutut serta pergelangan kaki',
+  fibula: 'menstabilkan pergelangan kaki dan menjadi tempat melekatnya otot betis',
+  patella: 'melindungi sendi lutut dan memperkuat kerja otot paha saat menekuk kaki',
+  humerus: 'menghubungkan bahu ke siku dan menjadi tumpuan otot lengan atas',
+  radius: 'tulang sisi ibu jari yang memungkinkan gerakan memutar pergelangan tangan',
+  ulna: 'membentuk sendi siku bersama humerus',
+  clavicle: 'menghubungkan lengan ke rangka dada dan menstabilkan bahu',
+  scapula: 'tulang pipih tempat melekatnya otot bahu dan lengan',
+  sternum: 'melindungi jantung dan paru-paru serta menjadi tempat menempelnya tulang rusuk',
+  rib: 'melindungi jantung dan paru-paru',
+  vertebra: 'melindungi sumsum tulang belakang dan menopang postur tubuh',
+  sacrum: 'menghubungkan tulang belakang ke panggul dan meneruskan berat tubuh bagian atas',
+  coccyx: 'tumpuan saat duduk dan tempat melekatnya otot dasar panggul',
+  pelvis: 'melindungi organ panggul dan menjadi tumpuan tubuh saat duduk serta berjalan',
+  mandible: 'satu-satunya tulang tengkorak yang bisa bergerak; berperan dalam mengunyah dan berbicara',
+  maxilla: 'membentuk rahang atas dan dasar rongga hidung serta rongga mata',
+  skull: 'melindungi otak',
+  cranium: 'melindungi otak',
+  carpal: 'memberi kelenturan pada pergelangan tangan',
+  tarsal: 'menyerap benturan saat berjalan dan menopang lengkung kaki',
+  metacarpal: 'membentuk telapak tangan dan pangkal jari-jari tangan',
+  metatarsal: 'membentuk telapak kaki dan menopang berat badan saat melangkah',
+}
+
+const REGION_RULES: Array<[RegExp, string]> = [
+  [/finger|thumb|carpal|metacarpal/i, 'Tangan'],
+  [/toe|tarsal|metatarsal/i, 'Kaki'],
+  [/humerus|radius|ulna|clavicle|scapula/i, 'Lengan'],
+  [/femur|tibia|fibula|patella/i, 'Tungkai'],
+  [/skull|cranium|mandible|maxilla|zygomatic|nasal|occipital|parietal|frontal|temporal|orbit/i, 'Kepala'],
+  [/rib|costa|sternum|thoracic|xiphoid/i, 'Dada'],
+  [/vertebra|cervical|lumbar|sacrum|coccyx|spine/i, 'Tulang Belakang'],
+  [/\bhip\b|pelvis|ilium|ischium|pubis/i, 'Panggul'],
+]
+
+function titleCase(s: string): string {
+  return s.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+}
+
+function prettyMeshName(name: string): string {
+  return titleCase(name.replace(/[_-]+/g, ' ').trim())
+}
+
+function findKey(norm: string, dict: Record<string, string>): string | null {
+  const keys = Object.keys(dict).sort((a, b) => b.length - a.length)
+  for (const k of keys) {
+    if (norm.includes(k)) return k
+  }
+  return null
+}
+
+// Mengurai nama mesh Inggris (mis. "proximal_phalanx_of_left_little_finger")
+// menjadi judul + deskripsi Indonesia yang spesifik per tulang.
+export function describeBone(meshName: string): BoneDetail {
+  const latin = prettyMeshName(meshName)
+  const norm = meshName.toLowerCase().replace(/[_-]+/g, ' ')
+  const tokens = new Set(norm.split(/\s+/))
+
+  const sideKey = tokens.has('left') ? 'left' : tokens.has('right') ? 'right' : null
+  const side = sideKey ? SIDE_ID[sideKey] : null
+  const segmentKey = tokens.has('proximal') ? 'proximal' : tokens.has('distal') ? 'distal' : tokens.has('middle') ? 'middle' : null
+
+  const boneKey = findKey(norm, BONE_ID)
+  const regionEntry = REGION_RULES.find(([re]) => re.test(norm))
+  const region = regionEntry ? regionEntry[1] : 'Rangka'
+
+  if (!boneKey) {
+    return {
+      title: latin,
+      latin,
+      region,
+      detail: `${latin}${side ? ` sisi ${side.toLowerCase()}` : ''} adalah salah satu dari 201 tulang penyusun kerangka dalam model ini.`,
+    }
+  }
+
+  const boneId = BONE_ID[boneKey]
+  const isToe = tokens.has('toe') || tokens.has('toes')
+
+  if (boneKey === 'phalanx') {
+    const digitKey = findKey(norm, DIGIT_ID)
+    const digit = digitKey ? DIGIT_ID[digitKey] : 'jari'
+    const jari = isToe ? 'Jari Kaki' : 'Jari Tangan'
+    const seg = segmentKey ? ` ${titleCase(SEGMENT_ID[segmentKey])}` : ''
+    const title = `Ruas ${jari}${seg} ${titleCase(digit)}${side ? ` ${side}` : ''}`
+    const gerak = isToe ? 'menapak dan menjaga keseimbangan' : 'gerakan halus dan genggaman'
+    return {
+      title,
+      latin,
+      region,
+      detail:
+        `${title} adalah tulang ruas ${digit.toLowerCase()}${side ? ` ${side.toLowerCase()}` : ''}` +
+        `${segmentKey ? ` bagian ${SEGMENT_ID[segmentKey]}` : ''}. ` +
+        `Bersama ruas lainnya, tulang ini membentuk kerangka ${jari.toLowerCase()} untuk ${gerak}.`,
+    }
+  }
+
+  const role = BONE_ROLE[boneKey]
+  const title = `${titleCase(boneId)}${side ? ` ${side}` : ''}`
+  const detail = role
+    ? `${title} adalah ${boneId}${side ? ` sisi ${side.toLowerCase()}` : ''} yang ${role}.`
+    : `${title} adalah ${boneId}${side ? ` sisi ${side.toLowerCase()}` : ''}, bagian dari kerangka ${region.toLowerCase()}.`
+
+  return { title, latin, region, detail }
+}

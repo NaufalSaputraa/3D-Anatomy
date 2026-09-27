@@ -1,26 +1,6 @@
-import type { Manifest, BodyPart } from './schema'
+import type { Manifest } from './schema'
 
-export function buildSearchIndex(manifest: Manifest): Record<string, BodyPart> {
-  const index: Record<string, BodyPart> = {}
-  for (const part of manifest) {
-    index[part.id] = part
-    // Also index by nama_en lowercase for fuzzy search
-    if (part.nama_en) {
-      index[part.nama_en.toLowerCase()] = part
-    }
-    // Index by nama_id lowercase
-    if (part.nama_id) {
-      index[part.nama_id.toLowerCase()] = part
-    }
-  }
-  return index
-}
-
-export function filterBySystem(system: string, manifest: Manifest): BodyPart[] {
-  return manifest.filter((part) => part.sistem === system)
-}
-
-export function searchParts(query: string, manifest: Manifest): BodyPart[] {
+export function searchParts(query: string, manifest: Manifest): Manifest {
   const lowerQuery = query.toLowerCase()
   return manifest.filter(
     (part) =>

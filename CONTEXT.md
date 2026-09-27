@@ -22,16 +22,12 @@ Satu dari 201 tulang pada model kerangka GLB (mis. `left_hip_bone`).
 _Avoid_: Part (untuk kerangka)
 
 **Bab**:
-Mode belajar untuk satu Sistem: materi + fakta kunci + kuis khusus bab tersebut.
-_Avoid_: Chapter (di UI Indonesia), Modul
+Mode belajar untuk satu Sistem: materi + fakta kunci yang menggantikan panel info.
+_Avoid_: Chapter (di UI Indonesia), Modul, Kuis Bab
 
 **Fokus**:
 Aksi mengisolasi satu Sistem (atau kerangka) sehingga sistem lain disembunyikan.
 _Avoid_: Isolasi, Isolate (di UI; kode boleh memakai `isolatedSystem`)
-
-**Kuis**:
-Kuis campuran dari bank soal manifest dan organ. Kuis khusus satu bab disebut Kuis Bab.
-_Avoid_: Quiz (di UI Indonesia), Tes
 
 **Reset**:
 Mengembalikan seleksi, kamera, Fokus, dan mode Belajar ke keadaan awal sekaligus.

@@ -1,15 +1,12 @@
 import { useStore } from '../../viewer/state/sceneStore'
 import { useLang, t } from '../i18n/strings'
-import type { QuizResult } from '../quiz/types'
 
 interface Props {
   onReset: () => void
-  onQuiz: () => void
   onStudy: () => void
-  best: QuizResult | null
 }
 
-export function Toolbar({ onReset, onQuiz, onStudy, best }: Props) {
+export function Toolbar({ onReset, onStudy }: Props) {
   const lang = useLang()
   const setLang = useStore((s) => s.setLang)
 
@@ -25,11 +22,6 @@ export function Toolbar({ onReset, onQuiz, onStudy, best }: Props) {
         </h1>
       </div>
       <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-        {best && (
-          <span className="hidden md:inline rounded-full bg-amber-50 border border-amber-200 px-2.5 py-1 text-xs font-medium text-amber-800">
-            {t(lang, 'toolbar.best')}: {best.score}/{best.total}
-          </span>
-        )}
         <div
           className="flex rounded-lg border border-gray-300 overflow-hidden text-xs font-medium"
           role="group"
@@ -55,13 +47,6 @@ export function Toolbar({ onReset, onQuiz, onStudy, best }: Props) {
           className="text-xs sm:text-sm font-medium px-2.5 sm:px-3.5 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-100 active:bg-gray-200"
         >
           {t(lang, 'toolbar.study')}
-        </button>
-        <button
-          type="button"
-          onClick={onQuiz}
-          className="text-xs sm:text-sm font-medium px-2.5 sm:px-3.5 py-1.5 rounded-lg bg-gray-900 text-white hover:bg-gray-700 active:bg-gray-800"
-        >
-          {t(lang, 'toolbar.quiz')}
         </button>
         <button
           type="button"

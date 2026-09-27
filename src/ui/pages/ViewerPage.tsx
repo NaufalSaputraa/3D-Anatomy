@@ -1,7 +1,16 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { AnatomyScene } from '../../viewer/components/AnatomyScene'
 import { useStore } from '../../viewer/state/sceneStore'
-import { ORGAN_META, ORGAN_META_EN, type OrganSystemId } from '../../viewer/atlas/atlas'
+import { ORGAN_META, type OrganSystemId } from '../../viewer/atlas/atlas'
+import manifestData from '../../data/manifest.json'
+import type { Manifest } from '../../data/schema'
+import { Sidebar } from '../components/Sidebar'
+import { OrganLayers } from '../components/OrganLayers'
+import { InfoPanel } from '../components/InfoPanel'
+import { StudyPanel } from '../components/StudyPanel'
+import { ChapterModal } from '../components/ChapterModal'
+import { Toolbar } from '../components/Toolbar'
+import { useSearch, type OrganMatch } from '../hooks/useSearch'
 import { useLang, t } from '../i18n/strings'
 import { useProgress } from '@react-three/drei'
 
@@ -21,18 +30,6 @@ function ModelLoader() {
     </div>
   )
 }
-import manifestData from '../../data/manifest.json'
-import type { Manifest } from '../../data/schema'
-import { Sidebar } from '../components/Sidebar'
-import { OrganLayers } from '../components/OrganLayers'
-import { InfoPanel } from '../components/InfoPanel'
-import { StudyPanel } from '../components/StudyPanel'
-import { ChapterModal } from '../components/ChapterModal'
-import { Toolbar } from '../components/Toolbar'
-import { useSearch, type OrganMatch } from '../hooks/useSearch'
-import { QuizModal } from '../quiz/QuizModal'
-import { loadBest } from '../quiz/storage'
-import type { QuizResult } from '../quiz/types'
 
 export function ViewerPage() {
   const lang = useLang()
@@ -68,18 +65,8 @@ export function ViewerPage() {
     setPendingOrganPick({ system: organ.system, partId: organ.id })
   }
 
-  const [quizOpen, setQuizOpen] = useState(false)
   const [leftOpen, setLeftOpen] = useState(true)
   const [chapterOpen, setChapterOpen] = useState(false)
-  const [quizChapter, setQuizChapter] = useState<{ system: OrganSystemId; title: string } | null>(null)
-  const [best, setBest] = useState<QuizResult | null>(() => loadBest())
-
-  useEffect(() => {
-    if (!quizOpen) {
-      setBest(loadBest())
-      setQuizChapter(null)
-    }
-  }, [quizOpen])
 
   const enterStudy = (sys: OrganSystemId) => {
     setStudySystem(sys)
@@ -88,14 +75,6 @@ export function ViewerPage() {
     setSelected(null)
     setSelectedOrgan(null)
     setChapterOpen(false)
-  }
-
-  const openChapterQuiz = () => {
-    if (!studySystem) return
-    const sys = studySystem as OrganSystemId
-    const meta = lang === 'en' ? ORGAN_META_EN[sys] : ORGAN_META[sys]
-    setQuizChapter({ system: sys, title: meta.nama })
-    setQuizOpen(true)
   }
 
   const manifest = manifestData as Manifest
@@ -109,12 +88,7 @@ export function ViewerPage() {
 
   return (
     <div className="h-screen flex flex-col bg-gray-100">
-      <Toolbar
-        onReset={handleReset}
-        onQuiz={() => setQuizOpen(true)}
-        onStudy={() => setChapterOpen(true)}
-        best={best}
-      />
+      <Toolbar onReset={handleReset} onStudy={() => setChapterOpen(true)} />
       <div className="px-4 py-2 bg-white border-b border-gray-200 flex items-center gap-2">
         <button
           type="button"
@@ -139,8 +113,7 @@ export function ViewerPage() {
             <span className="font-semibold">
               {isolatedSystem === 'skeletal'
                 ? t(lang, 'isolate.skeletal')
-                : ((lang === 'en' ? ORGAN_META_EN : ORGAN_META)[isolatedSystem as OrganSystemId]?.nama ??
-                  isolatedSystem)}
+                : (ORGAN_META[isolatedSystem as OrganSystemId]?.nama ?? isolatedSystem)}
             </span>{' '}
             — {t(lang, 'isolate.hidden')}
           </span>
@@ -189,7 +162,7 @@ export function ViewerPage() {
           </div>
         </main>
         {studySystem ? (
-          <StudyPanel onQuiz={openChapterQuiz} />
+          <StudyPanel />
         ) : (
           <InfoPanel part={selected} meshName={selectedMesh} organ={selectedOrgan} />
         )}
@@ -198,14 +171,6 @@ export function ViewerPage() {
         Model skeleton: MIT — JohanBellander/BodyExplorer • Organ: human-atlas (MIT) / BodyParts3D
         (CC BY 4.0) • {t(lang, 'footer.detail')}: public/ATTRIBUTION.md
       </footer>
-      {quizOpen && (
-        <QuizModal
-          manifest={manifest}
-          onClose={() => setQuizOpen(false)}
-          chapterSystem={quizChapter?.system ?? null}
-          chapterTitle={quizChapter?.title ?? null}
-        />
-      )}
       {chapterOpen && <ChapterModal onClose={() => setChapterOpen(false)} onPick={enterStudy} />}
     </div>
   )

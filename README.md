@@ -2,7 +2,7 @@
 
 Jelajahi rangka manusia 201 tulang dan 14 sistem organ dalam 3D langsung dari browser:
 putar, zoom hingga ke pembuluh terkecil, klik struktur apa pun untuk mengenalinya,
-belajar per bab, lalu uji dirimu lewat kuis — dalam Bahasa Indonesia atau Inggris.
+dan belajar per bab — dalam Bahasa Indonesia atau Inggris.
 
 ## Fitur
 
@@ -11,15 +11,12 @@ belajar per bab, lalu uji dirimu lewat kuis — dalam Bahasa Indonesia atau Ingg
 - **14 lapisan organ (lazy-load)** — jantung, pernapasan, pencernaan, saraf, otot, arteri,
   vena, indera, kemih, limfatik, endokrin, reproduksi, permukaan tubuh, jaringan ikat.
   Geometri 2234 part BodyParts3D diunduh per sistem hanya saat diaktifkan.
-- **Mode belajar per bab** — 14 bab berisi materi + 3 fakta kunci + kuis bab dengan
-  nilai terbaik tersimpan per bab.
-- **Kuis adaptif** — soal dari 2234 nama organ asli (badge hijau "Soal organ asli")
-  dengan fallback otomatis ke soal dasar bila offline.
+- **Mode belajar per bab** — 14 bab berisi materi + 3 fakta kunci per sistem tubuh.
 - **Search 2234 organ** — ketik ≥2 huruf, klik hasil organ: lapisan aktif otomatis
   dan kamera terbang ke part tersebut.
 - **Mode isolate & visibility** — fokus satu sistem, eye-toggle per sistem, panel kiri
   collapsible, layout responsif mobile.
-- **ID/EN penuh** — seluruh UI, materi, deskripsi tulang, dan soal kuis bilingual.
+- **ID/EN penuh** — seluruh UI, materi, dan deskripsi tulang bilingual.
 
 ## Mulai cepat
 
@@ -37,15 +34,15 @@ Perintah lain:
 | `npm run validate-manifest` | Validasi `src/data/manifest.json`       |
 | `npm run lint`          | Lint dengan Oxlint                          |
 
-> Butuh internet saat pertama memakai lapisan organ/kuis organ (fetch atlas +
-> chunk geometri dari upstream, lalu ter-cache). Kerangka, UI, dan kuis dasar
-> jalan penuh tanpa memuat apa pun lagi setelah build.
+> Butuh internet saat pertama memakai lapisan organ atau search organ (fetch atlas +
+> chunk geometri dari upstream, lalu ter-cache). Kerangka dan UI jalan penuh
+> tanpa memuat apa pun lagi setelah build.
 
 ## Cara pakai (60 detik)
 
 1. Aktifkan **Lapisan Organ** → Jantung — tunggu status *Siap*.
 2. Klik jantung di kanvas — baca panel penjelasannya, tekan **Fokus sistem ini**.
-3. Buka **Belajar** → pilih bab → baca fakta kunci → **Kuis Bab Ini**.
+3. Buka **Belajar** → pilih bab → baca materi dan fakta kuncinya.
 4. Ketik `aorta` di search → klik hasilnya → kamera terbang ke aortanya.
 
 ## Arsitektur singkat
@@ -54,7 +51,7 @@ Perintah lain:
 src/
   data/     # murni data: manifest, skema Zod, parser nama tulang, transform
   viewer/   # 3D: scene store (Zustand), loader atlas, ModelGroup, OrganSystem
-  ui/       # presentasi: Sidebar, InfoPanel, StudyPanel, QuizModal, i18n
+  ui/       # presentasi: Sidebar, InfoPanel, StudyPanel, ChapterModal, i18n
   app/      # entry: App, providers
 ```
 
@@ -83,7 +80,7 @@ server; tidak ada secret apa pun di repo ini.
 
 - [x] Skeleton + picking per tulang + deskripsi spesifik
 - [x] 14 lapisan organ + isolate + search + fokus kamera
-- [x] Belajar per bab + kuis organ + ID/EN
+- [x] Belajar per bab + ID/EN
 - [ ] Cache chunk IndexedDB (offline penuh)
 - [ ] Search seluruh 3432 konsep + navigasi hierarki FMA
 - [ ] Optimasi bundle three.js

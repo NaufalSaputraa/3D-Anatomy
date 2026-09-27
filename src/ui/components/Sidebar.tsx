@@ -41,7 +41,11 @@ export function Sidebar({ parts, selectedId, hoverId, visibilityMap, onSelect, o
   }, [parts])
 
   return (
-    <aside className="flex-1 min-h-0 w-full overflow-y-auto bg-white p-3">
+    <aside
+      className={`w-full overflow-y-auto bg-white p-3 ${
+        open ? 'flex-1 min-h-0' : 'shrink-0'
+      }`}
+    >
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

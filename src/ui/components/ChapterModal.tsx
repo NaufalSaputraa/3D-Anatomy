@@ -7,7 +7,6 @@ import {
   type OrganSystemId,
 } from '../../viewer/atlas/atlas'
 import { useLang, t } from '../i18n/strings'
-import { loadBest } from '../quiz/storage'
 
 interface Props {
   onClose: () => void
@@ -50,13 +49,12 @@ export function ChapterModal({ onClose, onPick }: Props) {
             onClick={onClose}
             className="rounded-lg border px-3 py-1.5 text-sm hover:bg-gray-100"
           >
-            {t(lang, 'quiz.close')}
+            {t(lang, 'common.close')}
           </button>
         </div>
         <div className="mt-3 flex flex-col gap-1.5 overflow-y-auto pr-1">
           {ORGAN_SYSTEMS.map((sys) => {
             const meta = lang === 'en' ? ORGAN_META_EN[sys] : ORGAN_META[sys]
-            const best = loadBest(sys)
             const count = counts?.[sys]
             return (
               <button
@@ -78,7 +76,6 @@ export function ChapterModal({ onClose, onPick }: Props) {
                       : count > 0
                         ? `${count} ${t(lang, 'study.structures')}`
                         : t(lang, 'study.needNet')}
-                    {best ? ` • ${t(lang, 'toolbar.best')} ${best.score}/${best.total}` : ''}
                   </span>
                 </span>
                 <span className="text-gray-400" aria-hidden>

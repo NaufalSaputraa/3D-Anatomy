@@ -14,7 +14,11 @@ export function OrganLayers() {
   const setOrganEnabled = useStore((s) => s.setOrganEnabled)
 
   return (
-    <div className="shrink-0 border-b border-gray-200 bg-white p-3 max-h-64 overflow-y-auto">
+    <div
+      className={`border-b border-gray-200 bg-white p-3 flex flex-col overflow-hidden ${
+        open ? 'flex-1 min-h-0' : 'shrink-0'
+      }`}
+    >
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -34,7 +38,7 @@ export function OrganLayers() {
       {open && (
         <>
           <p className="text-[11px] text-gray-500 mb-2 px-1">{t(lang, 'organs.sub')}</p>
-          <div className="flex flex-col gap-1">
+          <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 pr-0.5">
             {ORGAN_SYSTEMS.map((sys) => {
           const meta = lang === 'en' ? ORGAN_META_EN[sys] : ORGAN_META[sys]
           const enabled = !!organEnabled[sys]

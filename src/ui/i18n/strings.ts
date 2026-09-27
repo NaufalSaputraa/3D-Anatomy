@@ -47,6 +47,13 @@ const ID = {
   'study.needNet': 'Butuh internet',
   'study.structures': 'struktur',
   'loading.model': 'Memuat model 3D…',
+  'toolbar.help': 'Bantuan kontrol',
+  'hints.title': 'Jelajahi 3D',
+  'hints.rotate': 'Seret kiri: putar model',
+  'hints.pan': 'Seret kanan / dua jari: geser',
+  'hints.zoom': 'Scroll / cubit: zoom ke titik',
+  'hints.tap': 'Klik tulang / organ: lihat detail',
+  'hints.gotit': 'Mengerti',
 } as const
 
 export type StringKey = keyof typeof ID
@@ -94,6 +101,13 @@ const EN: Record<StringKey, string> = {
   'study.needNet': 'Needs internet',
   'study.structures': 'structures',
   'loading.model': 'Loading 3D model…',
+  'toolbar.help': 'Control help',
+  'hints.title': 'Explore 3D',
+  'hints.rotate': 'Left-drag: rotate model',
+  'hints.pan': 'Right-drag / two fingers: pan',
+  'hints.zoom': 'Scroll / pinch: zoom to point',
+  'hints.tap': 'Click bone / organ: see details',
+  'hints.gotit': 'Got it',
 }
 
 export const STR: Record<Lang, Record<StringKey, string>> = { id: { ...ID }, en: EN }

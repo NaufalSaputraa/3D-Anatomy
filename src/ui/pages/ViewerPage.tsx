@@ -6,6 +6,7 @@ import manifestData from '../../data/manifest.json'
 import type { Manifest } from '../../data/schema'
 import { Sidebar } from '../components/Sidebar'
 import { OrganLayers } from '../components/OrganLayers'
+import { ControlHints, hasSeenHints, markHintsSeen } from '../components/ControlHints'
 import { InfoPanel } from '../components/InfoPanel'
 import { StudyPanel } from '../components/StudyPanel'
 import { ChapterModal } from '../components/ChapterModal'
@@ -67,6 +68,12 @@ export function ViewerPage() {
 
   const [leftOpen, setLeftOpen] = useState(true)
   const [chapterOpen, setChapterOpen] = useState(false)
+  const [hintsOpen, setHintsOpen] = useState(() => !hasSeenHints())
+
+  const closeHints = () => {
+    markHintsSeen()
+    setHintsOpen(false)
+  }
 
   const enterStudy = (sys: OrganSystemId) => {
     setStudySystem(sys)
@@ -105,6 +112,15 @@ export function ViewerPage() {
           placeholder={t(lang, 'search.placeholder')}
           className="w-full max-w-md text-sm px-3.5 py-2 rounded-lg border border-gray-300 bg-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
         />
+        <button
+          type="button"
+          onClick={() => setHintsOpen(true)}
+          title={t(lang, 'toolbar.help')}
+          aria-label={t(lang, 'toolbar.help')}
+          className="shrink-0 rounded-lg border border-gray-300 w-9 py-2 text-sm leading-none hover:bg-gray-100"
+        >
+          ?
+        </button>
       </div>
       {isolatedSystem && (
         <div className="px-4 py-1.5 bg-gray-900 text-white text-xs flex items-center justify-between gap-2">
@@ -159,6 +175,7 @@ export function ViewerPage() {
           <div className="relative h-full w-full overflow-hidden rounded-2xl border border-gray-200 bg-[radial-gradient(ellipse_at_center,#ffffff_0%,#e8edf3_100%)] shadow-inner">
             <AnatomyScene />
             <ModelLoader />
+            {hintsOpen && <ControlHints onClose={closeHints} />}
           </div>
         </main>
         {studySystem ? (

@@ -63,6 +63,20 @@ export function OrganLayers() {
               <div className="flex-1 min-w-0 text-left">
                 <div className="font-medium leading-tight">{meta.nama}</div>
                 <div className="text-[11px] text-gray-500 leading-tight">{statusText}</div>
+                {status === 'loading' && (
+                  <div
+                    className="mt-1.5 h-1 rounded-full bg-gray-100"
+                    role="progressbar"
+                    aria-valuenow={progress}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  >
+                    <div
+                      className="h-full rounded-full bg-amber-500 transition-all"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                )}
               </div>
               <button
                 type="button"

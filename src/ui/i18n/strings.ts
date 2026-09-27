@@ -64,6 +64,7 @@ const ID = {
   'study.loading': 'Memuat…',
   'study.needNet': 'Butuh internet',
   'study.structures': 'struktur',
+  'loading.model': 'Memuat model 3D…',
 } as const
 
 export type StringKey = keyof typeof ID
@@ -128,6 +129,7 @@ const EN: Record<StringKey, string> = {
   'study.loading': 'Loading…',
   'study.needNet': 'Needs internet',
   'study.structures': 'structures',
+  'loading.model': 'Loading 3D model…',
 }
 
 export const STR: Record<Lang, Record<StringKey, string>> = { id: { ...ID }, en: EN }

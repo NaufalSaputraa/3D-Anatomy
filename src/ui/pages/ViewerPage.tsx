@@ -3,6 +3,24 @@ import { AnatomyScene } from '../../viewer/components/AnatomyScene'
 import { useStore } from '../../viewer/state/sceneStore'
 import { ORGAN_META, ORGAN_META_EN, type OrganSystemId } from '../../viewer/atlas/atlas'
 import { useLang, t } from '../i18n/strings'
+import { useProgress } from '@react-three/drei'
+
+function ModelLoader() {
+  const lang = useLang()
+  const { active, progress } = useProgress()
+  if (!active && progress >= 100) return null
+  return (
+    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-white/60">
+      <div
+        className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900"
+        aria-hidden
+      />
+      <p className="text-xs text-gray-500">
+        {t(lang, 'loading.model')} {Math.round(progress)}%
+      </p>
+    </div>
+  )
+}
 import manifestData from '../../data/manifest.json'
 import type { Manifest } from '../../data/schema'
 import { Sidebar } from '../components/Sidebar'
@@ -165,8 +183,9 @@ export function ViewerPage() {
           </div>
         )}
         <main className="flex-1 min-w-0 min-h-[50vh] md:min-h-0 p-3 md:p-4">
-          <div className="h-full w-full overflow-hidden rounded-2xl border border-gray-200 bg-[radial-gradient(ellipse_at_center,#ffffff_0%,#e8edf3_100%)] shadow-inner">
+          <div className="relative h-full w-full overflow-hidden rounded-2xl border border-gray-200 bg-[radial-gradient(ellipse_at_center,#ffffff_0%,#e8edf3_100%)] shadow-inner">
             <AnatomyScene />
+            <ModelLoader />
           </div>
         </main>
         {studySystem ? (

@@ -90,14 +90,14 @@ export function ViewerPage() {
   const isolatedSystem = useStore((s) => s.isolatedSystem)
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col bg-gray-100">
       <Toolbar
         onReset={handleReset}
         onQuiz={() => setQuizOpen(true)}
         onStudy={() => setChapterOpen(true)}
         best={best}
       />
-      <div className="px-4 py-2 border-b border-gray-200 flex items-center gap-2">
+      <div className="px-4 py-2 bg-white border-b border-gray-200 flex items-center gap-2">
         <button
           type="button"
           onClick={() => setLeftOpen((v) => !v)}
@@ -164,8 +164,10 @@ export function ViewerPage() {
             />
           </div>
         )}
-        <main className="flex-1 min-w-0 min-h-[50vh] md:min-h-0">
-          <AnatomyScene />
+        <main className="flex-1 min-w-0 min-h-[50vh] md:min-h-0 p-3 md:p-4">
+          <div className="h-full w-full overflow-hidden rounded-2xl border border-gray-200 bg-[radial-gradient(ellipse_at_center,#ffffff_0%,#e8edf3_100%)] shadow-inner">
+            <AnatomyScene />
+          </div>
         </main>
         {studySystem ? (
           <StudyPanel onQuiz={openChapterQuiz} />

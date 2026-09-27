@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useStore } from '../../viewer/state/sceneStore'
 import { ORGAN_META, ORGAN_META_EN, ORGAN_SYSTEMS } from '../../viewer/atlas/atlas'
 import { useLang, t } from '../i18n/strings'
@@ -6,17 +7,35 @@ import { useLang, t } from '../i18n/strings'
 // chunk geometrinya secara lazy; menonaktifkan melepasnya dari memori.
 export function OrganLayers() {
   const lang = useLang()
+  const [open, setOpen] = useState(true)
   const organEnabled = useStore((s) => s.organEnabled)
   const organStatus = useStore((s) => s.organStatus)
   const organProgress = useStore((s) => s.organProgress)
   const setOrganEnabled = useStore((s) => s.setOrganEnabled)
 
   return (
-    <div className="shrink-0 border-b border-gray-200 p-3 max-h-64 overflow-y-auto">
-      <h2 className="text-sm font-semibold mb-1 px-1">{t(lang, 'organs.title')}</h2>
-      <p className="text-[11px] text-gray-500 mb-2 px-1">{t(lang, 'organs.sub')}</p>
-      <div className="flex flex-col gap-1">
-        {ORGAN_SYSTEMS.map((sys) => {
+    <div className="shrink-0 border-b border-gray-200 bg-white p-3 max-h-64 overflow-y-auto">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="w-full flex items-center justify-between mb-1 px-1 text-left"
+      >
+        <span className="text-sm font-semibold">
+          {t(lang, 'organs.title')}{' '}
+          <span className="font-normal text-gray-400">
+            • {ORGAN_SYSTEMS.filter((s) => organEnabled[s]).length}/{ORGAN_SYSTEMS.length}
+          </span>
+        </span>
+        <span className="text-gray-400 text-xs" aria-hidden>
+          {open ? '▾' : '▸'}
+        </span>
+      </button>
+      {open && (
+        <>
+          <p className="text-[11px] text-gray-500 mb-2 px-1">{t(lang, 'organs.sub')}</p>
+          <div className="flex flex-col gap-1">
+            {ORGAN_SYSTEMS.map((sys) => {
           const meta = lang === 'en' ? ORGAN_META_EN[sys] : ORGAN_META[sys]
           const enabled = !!organEnabled[sys]
           const status = organStatus[sys] ?? 'idle'
@@ -58,7 +77,9 @@ export function OrganLayers() {
             </div>
           )
         })}
-      </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

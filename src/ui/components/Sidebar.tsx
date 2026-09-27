@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import type { Manifest } from '../../data/schema'
 import type { OrganMatch } from '../hooks/useSearch'
 import type { VisibilityMap } from '../../viewer/state/sceneStore'
@@ -29,6 +29,7 @@ interface Props {
 
 export function Sidebar({ parts, selectedId, hoverId, visibilityMap, onSelect, onHover, onToggleSystem, organs, onPickOrgan }: Props) {
   const lang = useLang()
+  const [open, setOpen] = useState(true)
   const groups = useMemo(() => {
     const map = new Map<string, Manifest>()
     for (const p of parts) {
@@ -40,11 +41,23 @@ export function Sidebar({ parts, selectedId, hoverId, visibilityMap, onSelect, o
   }, [parts])
 
   return (
-    <aside className="flex-1 min-h-0 w-full overflow-y-auto p-3">
-      <h2 className="text-sm font-semibold mb-2">
-        {t(lang, 'sidebar.title')} ({parts.length})
-      </h2>
-      {organs && organs.length > 0 && onPickOrgan && (
+    <aside className="flex-1 min-h-0 w-full overflow-y-auto bg-white p-3">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="w-full flex items-center justify-between mb-2 text-left"
+      >
+        <span className="text-sm font-semibold">
+          {t(lang, 'sidebar.title')} ({parts.length})
+        </span>
+        <span className="text-gray-400 text-xs" aria-hidden>
+          {open ? '▾' : '▸'}
+        </span>
+      </button>
+      {open && (
+        <>
+          {organs && organs.length > 0 && onPickOrgan && (
         <div className="mb-3">
           <div className="px-1 mb-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
@@ -116,6 +129,8 @@ export function Sidebar({ parts, selectedId, hoverId, visibilityMap, onSelect, o
           </div>
         )
       })}
+        </>
+      )}
     </aside>
   )
 }

@@ -84,7 +84,7 @@ export const AnatomyScene = () => {
   return (
     <Canvas
       camera={{ position: [0, 0.7, 5.1], fov: 45 }}
-      gl={{ antialias: true }}
+      gl={{ antialias: true, alpha: true }}
       onPointerMissed={() => {
         const st = useStore.getState()
         st.setSelected(null)
@@ -93,7 +93,7 @@ export const AnatomyScene = () => {
       }}
       onCreated={({ gl }) => {
         gl.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-        gl.setClearColor(0xf8fafc, 1)
+        gl.setClearColor(0x000000, 0)
       }}
     >
       <ambientLight intensity={0.6} />
